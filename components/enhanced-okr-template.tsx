@@ -23,12 +23,17 @@ import { useState, useEffect } from "react";
 
 function useLocalStorageState<T>(key: string, defaultValue: T) {
   const [state, setState] = useState<T>(() => {
-    const storedValue = localStorage.getItem(key);
-    return storedValue ? JSON.parse(storedValue) : defaultValue;
+    if (typeof window !== "undefined") {
+      const storedValue = localStorage.getItem(key);
+      return storedValue ? JSON.parse(storedValue) : defaultValue;
+    }
+    return defaultValue;
   });
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(state));
+    if (typeof window !== "undefined") {
+      localStorage.setItem(key, JSON.stringify(state));
+    }
   }, [key, state]);
 
   return [state, setState] as [T, React.Dispatch<React.SetStateAction<T>>];
@@ -235,7 +240,7 @@ export function EnhancedOkrTemplate() {
                             updateKeyResult(
                               objective.id,
                               kr.id,
-                              "progress",
+                              kr.description,
                               value[0]
                             )
                           }
@@ -248,7 +253,7 @@ export function EnhancedOkrTemplate() {
                   ))}
                 </div>
                 <Button
-                  onClick={() => addKeyResult(objective.id)}
+                  onClick={() => addKeyResult(objective.id, "")}
                   className="mt-8 w-full bg-white text-black hover:bg-zinc-200"
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Key Result
