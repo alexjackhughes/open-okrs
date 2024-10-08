@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,27 +19,37 @@ interface Objective {
   keyResults: KeyResult[];
 }
 
-export function EnhancedOkrTemplate() {
-  const [overarchingGoal, setOverarchingGoal] = useState(
-    "Achieve market leadership through innovation and customer satisfaction"
+import { useState, useEffect } from "react";
+
+function useLocalStorageState<T>(key: string, defaultValue: T) {
+  const [state, setState] = useState<T>(() => {
+    const storedValue = localStorage.getItem(key);
+    return storedValue ? JSON.parse(storedValue) : defaultValue;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [key, state]);
+
+  return [state, setState] as [T, React.Dispatch<React.SetStateAction<T>>];
+}
+
+function useObjectives() {
+  const [overarchingGoal, setOverarchingGoal] = useLocalStorageState<string>(
+    "overarchingGoal",
+    ""
   );
-  const [objectives, setObjectives] = useState<Objective[]>([
-    {
-      id: 1,
-      title: "Increase customer satisfaction",
-      keyResults: [
-        {
-          id: 1,
-          description: "Improve response time to under 2 hours",
-          progress: 60,
-        },
-        { id: 2, description: "Increase NPS score by 20 points", progress: 40 },
-      ],
-    },
-  ]);
+
+  const [objectives, setObjectives] = useLocalStorageState<Objective[]>(
+    "objectives",
+    []
+  );
 
   const addObjective = () => {
-    const newId = Math.max(0, ...objectives.map((obj) => obj.id)) + 1;
+    const newId =
+      objectives.length > 0
+        ? Math.max(...objectives.map((obj) => obj.id)) + 1
+        : 1;
     setObjectives([...objectives, { id: newId, title: "", keyResults: [] }]);
   };
 
@@ -54,17 +63,41 @@ export function EnhancedOkrTemplate() {
     );
   };
 
-  const addKeyResult = (objectiveId: number) => {
+  const addKeyResult = (objectiveId: number, description: string) => {
     setObjectives(
       objectives.map((obj) => {
         if (obj.id === objectiveId) {
-          const newId = Math.max(0, ...obj.keyResults.map((kr) => kr.id)) + 1;
+          const newId =
+            obj.keyResults.length > 0
+              ? Math.max(...obj.keyResults.map((kr) => kr.id)) + 1
+              : 1;
           return {
             ...obj,
             keyResults: [
               ...obj.keyResults,
-              { id: newId, description: "", progress: 0 },
+              { id: newId, description: description, progress: 0 },
             ],
+          };
+        }
+        return obj;
+      })
+    );
+  };
+
+  const updateKeyResult = (
+    objectiveId: number,
+    keyResultId: number,
+    description: string,
+    progress: number
+  ) => {
+    setObjectives(
+      objectives.map((obj) => {
+        if (obj.id === objectiveId) {
+          return {
+            ...obj,
+            keyResults: obj.keyResults.map((kr) =>
+              kr.id === keyResultId ? { ...kr, description, progress } : kr
+            ),
           };
         }
         return obj;
@@ -86,26 +119,31 @@ export function EnhancedOkrTemplate() {
     );
   };
 
-  const updateKeyResult = (
-    objectiveId: number,
-    keyResultId: number,
-    field: "description" | "progress",
-    value: string | number
-  ) => {
-    setObjectives(
-      objectives.map((obj) => {
-        if (obj.id === objectiveId) {
-          return {
-            ...obj,
-            keyResults: obj.keyResults.map((kr) =>
-              kr.id === keyResultId ? { ...kr, [field]: value } : kr
-            ),
-          };
-        }
-        return obj;
-      })
-    );
+  return {
+    overarchingGoal,
+    setOverarchingGoal,
+    objectives,
+    addObjective,
+    removeObjective,
+    updateObjective,
+    addKeyResult,
+    removeKeyResult,
+    updateKeyResult,
   };
+}
+
+export function EnhancedOkrTemplate() {
+  const {
+    overarchingGoal,
+    setOverarchingGoal,
+    objectives,
+    addObjective,
+    removeObjective,
+    updateObjective,
+    addKeyResult,
+    removeKeyResult,
+    updateKeyResult,
+  } = useObjectives();
 
   return (
     <div className="container mx-auto p-4 bg-black text-white min-h-screen">
@@ -176,8 +214,8 @@ export function EnhancedOkrTemplate() {
                           updateKeyResult(
                             objective.id,
                             kr.id,
-                            "description",
-                            e.target.value
+                            e.target.value,
+                            kr.progress
                           )
                         }
                         placeholder="Enter key result"
