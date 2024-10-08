@@ -1,4 +1,13 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Open OKRs
+
+An open-source OKR (Objectives and Key Results) manager where you can write and track OKRs for your team. This application helps you set, manage, and monitor your team's goals effectively.
+
+## Features
+
+- **Create and Manage OKRs**: Easily set objectives and key results for individuals or teams.
+- **Progress Tracking**: Monitor progress in real-time with intuitive dashboards.
+- **Collaboration**: Share OKRs with team members and collaborate effectively.
+- **Notifications**: Receive updates and reminders about upcoming deadlines.
 
 ## Getting Started
 
@@ -34,3 +43,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any bugs or enhancements.
+
+## License
+
+This project is licensed under the MIT License.
